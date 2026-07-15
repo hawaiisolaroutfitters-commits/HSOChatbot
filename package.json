@@ -1,0 +1,7 @@
+{
+  "name": "hawaii-solar-intake",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI intake agent backend for Hawaii Solar Outfitters",
+  "main": "index.js"
+}
