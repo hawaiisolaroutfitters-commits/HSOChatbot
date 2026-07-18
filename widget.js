@@ -110,6 +110,10 @@
     } catch (err) {
       setTyping(false);
       document.getElementById("hso-chat-send").disabled = false;
+      // Remove the failed user message so the conversation history stays valid
+      // (Anthropic's API requires strict user/assistant alternation) and the
+      // visitor can simply try again without the whole chat breaking.
+      messages.pop();
       addMessage("assistant", "Sorry, something went wrong. Please try again or reach out directly.");
     }
   }
