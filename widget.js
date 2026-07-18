@@ -1,6 +1,6 @@
 (function () {
   // ===== CONFIG — update this after you deploy your backend =====
-  const BACKEND_URL = "https://hso-chatbot-g2kl.vercel.app/api/chat";
+  const BACKEND_URL = "https://YOUR-VERCEL-PROJECT.vercel.app/api/chat";
   // ================================================================
 
   const COLORS = {
@@ -48,6 +48,12 @@
     }
     #hso-chat-send:disabled { opacity: 0.5; cursor: default; }
     .hso-typing { font-size: 13px; color: #888; padding: 0 14px 6px; }
+    .hso-chat-btn {
+      display: inline-block; margin-top: 8px; background: ${COLORS.accent};
+      color: white; text-decoration: none; font-weight: 600; font-size: 13px;
+      padding: 8px 14px; border-radius: 16px;
+    }
+    .hso-chat-btn:hover { opacity: 0.9; }
   `;
   document.head.appendChild(style);
 
@@ -75,16 +81,48 @@
   let messages = [];
   let open = false;
 
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function linkify(text) {
+    const escaped = escapeHtml(text);
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return escaped.replace(urlRegex, (url) => {
+      const cleanUrl = url.replace(/[.,;:!?]+$/, ""); // trim trailing punctuation
+      const label = cleanUrl.includes("zcal.co") ? "Book a Time" : "Open Link";
+      return `<br><a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="hso-chat-btn">${label}</a>`;
+    });
+  }
+
+  function scrollToBottom() {
+    const container = document.getElementById("hso-chat-messages");
+    // requestAnimationFrame ensures this runs after the browser has finished
+    // laying out the newly added message, so the full message is actually visible
+    // instead of scrolling based on stale (pre-render) dimensions.
+    requestAnimationFrame(() => {
+      container.scrollTop = container.scrollHeight;
+    });
+  }
+
   function addMessage(role, text) {
     const div = document.createElement("div");
     div.className = "hso-msg " + role;
-    div.textContent = text;
+    if (role === "assistant") {
+      div.innerHTML = linkify(text); // safe: text is HTML-escaped first, only trusted <a> tags are injected
+    } else {
+      div.textContent = text;
+    }
     document.getElementById("hso-chat-messages").appendChild(div);
-    div.scrollIntoView({ behavior: "smooth", block: "end" });
+    scrollToBottom();
   }
 
   function setTyping(isTyping) {
     document.getElementById("hso-typing").style.display = isTyping ? "block" : "none";
+    if (isTyping) scrollToBottom();
   }
 
   async function sendMessage(text) {
