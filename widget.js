@@ -1,6 +1,6 @@
 (function () {
   // ===== CONFIG — update this after you deploy your backend =====
-  const BACKEND_URL = "https://YOUR-VERCEL-PROJECT.vercel.app/api/chat";
+  const BACKEND_URL = "https://hso-chatbot-g2kl.vercel.app/api/chat";
   // ================================================================
 
   const COLORS = {
